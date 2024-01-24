@@ -1,25 +1,39 @@
+using Cargo_Tracking_Application;
+using Cargo_Tracking_Application.Model;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+
+builder.Services.AddDbContext<CargoDB>(options =>
+options.UseSqlServer(builder.Configuration.GetConnectionString("CargoDB")));
+
+builder.Services.AddHttpClient<GetJson>(client =>
+{
+    client.BaseAddress = new Uri("https://raw.githubusercontent.com/ahirmitul8ca/Sample-Json-Files/main/Cargojsf.Json");
+});
+
+
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
+//app.UseHttpsRedirection();
 app.UseAuthorization();
 
+
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=VesselDatasController}/{action=Index}/{id?}");
+
+
+
+
 app.MapControllers();
+
 
 app.Run();
